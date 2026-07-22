@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Личный кабинет</title>
+    <style>
+        /* ----- общие стили ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #1a1e24;
+            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .laptop-screen {
+            max-width: 1100px;
+            width: 100%;
+            background: #232931;
+            border-radius: 20px 20px 12px 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            padding: 20px 20px 10px;
+            border: 2px solid #3a404a;
+        }
+        .screen-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #aab;
+            font-size: 0.8rem;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #2f3540;
+            margin-bottom: 18px;
+        }
+        .screen-header .user {
+            background: #2f3540;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #d0d7e0;
+        }
+        /* ----- рабочий стол ----- */
+        .desktop {
+            min-height: 460px;
+            display: flex;
+            flex-direction: column;
+            background: #1f2630;
+            border-radius: 14px;
+            padding: 20px 18px;
+            background-image: radial-gradient(circle at 20% 30%, #2d3542 0%, #1a1f28 100%);
+        }
+        .greeting {
+            color: #e8edf5;
+            font-size: 1.8rem;
+            font-weight: 300;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        .greeting span {
+            font-weight: 600;
+            color: #f5cba0;
+        }
+        .sub-greeting {
+            color: #8a9aa8;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+            border-left: 3px solid #f5cba0;
+            padding-left: 14px;
+        }
+        .icons-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px 40px;
+            margin-top: 6px;
+        }
+        .icon-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            cursor: pointer;
+            transition: 0.15s;
+            text-decoration: none;
+            color: #d0d7e0;
+        }
+        .icon-item:hover {
+            transform: scale(0.96);
+            opacity: 0.8;
+        }
+        .icon-item .icon {
+            font-size: 2.6rem;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+        }
+        .icon-item .label {
+            font-size: 0.7rem;
+            text-align: center;
+            background: rgba(255,255,255,0.04);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+        .dock {
+            margin-top: 28px;
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            background: #2a303b;
+            padding: 10px 18px;
+            border-radius: 40px;
+            align-self: center;
+            border: 1px solid #3b4453;
+        }
+        .dock-item {
+            color: #aab;
+            font-size: 0.7rem;
+            padding: 2px 12px;
+            border-radius: 30px;
+        }
+        .dock-item.active {
+            background: #3d475a;
+            color: #f5e6d3;
+        }
+        .btn-back-desktop {
+            background: #323b48;
+            border: none;
+            color: #d0d7e0;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 18px;
+            transition: 0.1s;
+        }
+        .btn-back-desktop:hover {
+            background: #404b5c;
+        }
+        .page-content {
+            display: none;
+            padding: 18px 10px 10px;
+            color: #ddd;
+            background: #1a202a;
+            border-radius: 16px;
+            margin-top: 12px;
+        }
+        .page-content.visible {
+            display: block;
+        }
+        .page-content h2 {
+            color: #f5cba0;
+            font-weight: 300;
+            font-size: 1.6rem;
+            border-bottom: 1px solid #2f3845;
+            padding-bottom: 10px;
+            margin-bottom: 18px;
+        }
+        .page-content p {
+            line-height: 1.6;
+            color: #bcc9d6;
+        }
+        .page-content .photo-item {
+            background: #2b3442;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            border-left: 4px solid #f5cba0;
+        }
+        .page-content .photo-item strong {
+            color: #f5dcc4;
+        }
+        .page-content .photo-item small {
+            color: #8a9aa8;
+            display: block;
+            margin-top: 4px;
+        }
+        /* ----- форма входа ----- */
+        .login-box {
+            background: #1f2630;
+            border-radius: 24px;
+            padding: 36px 28px;
+            max-width: 380px;
+            margin: 0 auto;
+            text-align: center;
+            border: 1px solid #3a4455;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+        }
+        .login-box h2 {
+            color: #f5cba0;
+            font-weight: 300;
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        .login-box p {
+            color: #8a9aa8;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+        .login-box input {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 14px;
+            background: #2a323f;
+            border: 1px solid #3f4a5a;
+            border-radius: 40px;
+            color: #e8edf5;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        .login-box input:focus {
+            border-color: #f5cba0;
+            background: #2f3848;
+        }
+        .login-box button {
+            width: 100%;
+            padding: 12px;
+            background: #f5cba0;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1a1e24;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .login-box button:hover {
+            background: #e8b889;
+        }
+        .login-error {
+            color: #e0846a;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+        .login-box .hint {
+            font-size: 0.7rem;
+            color: #5f6f82;
+            margin-top: 12px;
+        }
+        /* скрытые элементы */
+        #desktopView {
+            display: none;
+        }
+        #pageContainer {
+            display: none;
+        }
+        #backToDesktop {
+            display: none;
+        }
+        .login-error.visible {
+            display: block;
+        }
+        @media (max-width: 650px) {
+            .greeting {
+                font-size: 1.4rem;
+            }
+            .icon-item {
+                width: 70px;
+            }
+            .icon-item .icon {
+                font-size: 2.2rem;
+            }
+            .dock {
+                gap: 6px;
+                flex-wrap: wrap;
+            }
+            .login-box {
+                padding: 24px 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="laptop-screen" id="app">
+        <!-- верхняя панель -->
+        <div class="screen-header">
+            <span class="time">💻 Она</span>
+            <span class="user" id="userDisplay">🧑‍💻 Вход</span>
+        </div>
+
+        <!-- ----- ФОРМА ВХОДА ----- -->
+        <div id="loginView">
+            <div class="login-box">
+                <h2>🔐 Личный кабинет</h2>
+                <p>Войди, чтобы открыть нашу историю</p>
+                <input type="text" id="loginInput" placeholder="Логин" value="СашаАнанас" />
+                <input type="password" id="passwordInput" placeholder="Пароль" value="4557" />
+                <button id="loginBtn">Войти</button>
+                <div class="login-error" id="loginError">❌ Неверный логин или пароль</div>
+                <div class="hint">✨ твой личный архив</div>
+            </div>
+        </div>
+
+        <!-- ----- РАБОЧИЙ СТОЛ (скрыт до входа) ----- -->
+        <div id="desktopView">
+            <div class="desktop">
+                <div class="greeting">Привет, <span id="userNameDisplay">Саша</span> 💛</div>
+                <div class="sub-greeting">Твой личный кабинет нашей истории. Нажми на папку, чтобы войти.</div>
+
+                <div class="icons-grid">
+                    <a class="icon-item" data-page="history">
+                        <span class="icon">📖</span>
+                        <span class="label">Наша история</span>
+                    </a>
+                    <a class="icon-item" data-page="growth">
+                        <span class="icon">🌱</span>
+                        <span class="label">Наш рост</span>
+                    </a>
+                    <a class="icon-item" data-page="moments">
+                        <span class="icon">💌</span>
+                        <span class="label">Искренние моменты</span>
+                    </a>
+                    <a class="icon-item" data-page="letters">
+                        <span class="icon">✉️</span>
+                        <span class="label">Мои письма</span>
+                    </a>
+                    <a class="icon-item" data-page="playlist">
+                        <span class="icon">🎵</span>
+                        <span class="label">Наш плейлист</span>
+                    </a>
+                </div>
+
+                <div class="dock">
+                    <span class="dock-item active">💻 Рабочий стол</span>
+                    <span class="dock-item">❤️ Ты</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- контейнер для страниц -->
+        <div id="pageContainer"></div>
+
+        <div style="text-align: center; margin-top: 14px;">
+            <button class="btn-back-desktop" id="backToDesktop">⬅ Вернуться на рабочий стол</button>
+        </div>
+    </div>
+
+    <script>
+        // ---------- ДАННЫЕ СТРАНИЦ ----------
+        const pages = {
+            history: {
+                title: "📖 Наша история",
+                content: `
+                    <div class="photo-item"><strong>День знакомства</strong><small>«Ты зашла и я понял…»</small></div>
+                    <div class="photo-item"><strong>Первое свидание</strong><small>Смех, волнение и чувство, что я знаю тебя вечность.</small></div>
+                    <div class="photo-item"><strong>Первый Новый год вместе</strong><small>Снег, фейерверк и обещание быть рядом.</small></div>
+                    <div class="photo-item"><strong>Наша свадьба</strong><small>Ты сказала «да», я перестал дышать.</small></div>
+                    <div class="photo-item"><strong>Первый переезд</strong><small>Мы строили дом из коробок и надежды.</small></div>
+                    <p style="margin-top:20px; color:#b0c7df;">Мы прошли через расстояния, ссоры, слёзы — и остались.</p>
+                `
+            },
+            growth: {
+                title: "🌱 Наш рост",
+                content: `
+                    <div class="photo-item"><strong>Тогда</strong><small>Мы боялись сказать правду, прятали обиды.</small></div>
+                    <div class="photo-item"><strong>Сейчас</strong><small>Мы учимся слышать, даже когда больно.</small></div>
+                    <div class="photo-item"><strong>Вместе</strong><small>Каждый день я выбираю тебя, а ты — меня.</small></div>
+                    <p style="margin-top:20px; color:#b0c7df;">Мы не идеальны. Мы растем. И я хочу расти только рядом с тобой.</p>
+                `
+            },
+            moments: {
+                title: "💌 Искренние моменты",
+                content: `
+                    <div class="photo-item"><strong>«Спасибо, что ты есть»</strong><small>Твои слова, которые я храню в сердце.</small></div>
+                    <div class="photo-item"><strong>«Я скучаю»</strong><small>Миллион раз в мессенджерах и один раз навсегда.</small></div>
+                    <div class="photo-item"><strong>«Я люблю тебя»</strong><small>Каждый раз по-новому.</small></div>
+                    <p style="color:#d0d7e0; margin-top:16px;">Эти моменты — наша настоящая жизнь.</p>
+                `
+            },
+            letters: {
+                title: "✉️ Мои письма тебе",
+                content: `
+                    <div class="photo-item"><strong>Первое письмо</strong><small>«Ты не ищешь меня, ты просто есть рядом…»</small></div>
+                    <div class="photo-item"><strong>Письмо после ссоры</strong><small>«Я не хочу быть правым, я хочу быть с тобой».</small></div>
+                    <div class="photo-item"><strong>Сегодня</strong><small>«Ты — мой дом, даже когда я теряю ключи».</small></div>
+                `
+            },
+            playlist: {
+                title: "🎵 Наш плейлист",
+                content: `
+                    <div class="photo-item"><strong>🎧 Первый трек</strong><small>Та песня, которая играла в первый раз.</small></div>
+                    <div class="photo-item"><strong>🎧 Песня разлуки</strong><small>Та, что мы пели в трубку ночью.</small></div>
+                    <div class="photo-item"><strong>🎧 Наш гимн</strong><small>Та, что мы включим на нашей годовщине.</small></div>
+                `
+            }
+        };
+
+        // ---------- ЭЛЕМЕНТЫ ----------
+        const loginView = document.getElementById('loginView');
+        const desktopView = document.getElementById('desktopView');
+        const pageContainer = document.getElementById('pageContainer');
+        const backBtn = document.getElementById('backToDesktop');
+
+        const loginInput = document.getElementById('loginInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        const userDisplay = document.getElementById('userDisplay');
+        const userNameDisplay = document.getElementById('userNameDisplay');
+
+        // ---------- ВХОД ----------
+        function handleLogin() {
+            const login = loginInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (login === 'СашаАнанас' && password === '4557') {
+                // успех
+                loginView.style.display = 'none';
+                desktopView.style.display = 'block';
+                pageContainer.style.display = 'block';
+                backBtn.style.display = 'inline-block';
+                userDisplay.textContent = '👤 СашаАнанас';
+                userNameDisplay.textContent = 'Саша';
+                loginError.classList.remove('visible');
+            } else {
+                loginError.classList.add('visible');
+                loginInput.value = '';
+                passwordInput.value = '';
+                loginInput.focus();
+            }
+        }
+
+        loginBtn.addEventListener('click', handleLogin);
+
+        // вход по Enter
+        loginInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        // ---------- НАВИГАЦИЯ ----------
+        function openPage(pageId) {
+            if (!pageId || !pages[pageId]) return;
+            const data = pages[pageId];
+            pageContainer.innerHTML = `
+                <div class="page-content visible">
+                    <h2>${data.title}</h2>
+                    ${data.content}
+                </div>
+            `;
+            pageContainer.dataset.currentPage = pageId;
+            desktopView.style.display = 'none';
+            backBtn.style.display = 'inline-block';
+        }
+
+        function closePage() {
+            desktopView.style.display = 'block';
+            pageContainer.innerHTML = '';
+            backBtn.style.display = 'none';
+            pageContainer.dataset.currentPage = '';
+        }
+
+        document.querySelectorAll('.icon-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const page = this.getAttribute('data-page');
+                if (page) openPage(page);
+            });
+        });
+
+        backBtn.addEventListener('click', closePage);
+
+        // ---------- ПЕРВОНАЧАЛЬНОЕ СОСТОЯНИЕ ----------
+        // форма видна, рабочий стол скрыт
+        loginView.style.display = 'block';
+        desktopView.style.display = 'none';
+        pageContainer.style.display = 'none';
+        backBtn.style.display = 'none';
+
+        // если логин/пароль уже заполнены (для удобства)
+        loginInput.value = 'СашаАнанас';
+        passwordInput.value = '4557';
+    </script>
+</body>
+</html>
