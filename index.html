@@ -3,484 +3,623 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Личный кабинет</title>
+    <title>Наш рабочий стол</title>
     <style>
-        /* ----- общие стили ----- */
+        /* ----- Базовые стили ----- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
         body {
             background: #1a1e24;
-            font-family: 'Segoe UI', 'Roboto', system-ui, sans-serif;
-            min-height: 100vh;
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
             padding: 20px;
         }
-        .laptop-screen {
-            max-width: 1100px;
+        /* имитация монитора */
+        .monitor {
+            max-width: 1300px;
             width: 100%;
-            background: #232931;
-            border-radius: 20px 20px 12px 12px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8);
+            background: #0a0e14;
+            border-radius: 16px 16px 8px 8px;
             padding: 20px 20px 10px;
-            border: 2px solid #3a404a;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            border: 2px solid #2a2f3a;
         }
-        .screen-header {
+        /* экран */
+        .screen {
+            background: #1a2a3a;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            min-height: 520px;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.3);
+        }
+        /* ----- РАБОЧИЙ СТОЛ (фон) ----- */
+        .desktop {
+            position: relative;
+            width: 100%;
+            min-height: 540px;
+            background: linear-gradient(145deg, #1d3b55 0%, #0f2537 100%);
+            padding: 12px 14px 50px;
+            overflow: hidden;
+        }
+        /* ----- ИКОНКИ (можно перетаскивать) ----- */
+        .desktop-icon {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 72px;
+            cursor: default;
+            transition: filter 0.15s;
+            padding: 6px 4px;
+            border-radius: 8px;
+        }
+        .desktop-icon:hover {
+            background: rgba(255,255,255,0.06);
+            filter: brightness(1.2);
+        }
+        .desktop-icon .icon-img {
+            font-size: 2.8rem;
+            line-height: 1;
+            margin-bottom: 2px;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+            pointer-events: none;
+        }
+        .desktop-icon .icon-label {
+            font-size: 0.65rem;
+            color: #f0f4fa;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.9), 0 1px 2px rgba(0,0,0,0.7);
+            text-align: center;
+            background: rgba(0,0,0,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            pointer-events: none;
+            max-width: 72px;
+            word-wrap: break-word;
+            line-height: 1.2;
+        }
+        /* выделение при клике */
+        .desktop-icon.selected {
+            background: rgba(255,255,255,0.12);
+            outline: 1px solid rgba(255,255,255,0.2);
+        }
+        /* ----- КОРЗИНА (особая) ----- */
+        .desktop-icon.recycle {
+            bottom: 16px;
+            right: 16px;
+            position: absolute;
+        }
+        /* ----- ПАНЕЛЬ ЗАДАЧ (снизу) ----- */
+        .taskbar {
+            background: #1c1f26;
+            border-top: 1px solid #3a4050;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 12px;
+            min-height: 44px;
+            backdrop-filter: blur(6px);
+        }
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .start-btn {
+            background: #2a3140;
+            border: none;
+            color: #ddd;
+            padding: 4px 14px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .start-btn:hover {
+            background: #3a4358;
+        }
+        .taskbar-time {
+            color: #c8d0dc;
+            font-size: 0.75rem;
+            letter-spacing: 0.3px;
+        }
+        .taskbar-icons {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .taskbar-icons span {
+            color: #aab4c4;
+            font-size: 0.8rem;
+        }
+        /* ----- ПАПКА (внутреннее содержимое) ----- */
+        .folder-window {
+            position: absolute;
+            top: 60px;
+            left: 80px;
+            width: 420px;
+            max-width: 80%;
+            background: #1e2532;
+            border-radius: 10px 10px 8px 8px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.7);
+            border: 1px solid #3a4358;
+            z-index: 100;
+            display: none;
+        }
+        .folder-window.open {
+            display: block;
+        }
+        .folder-header {
+            background: #2a3345;
+            padding: 8px 14px;
+            border-radius: 10px 10px 0 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            color: #aab;
-            font-size: 0.8rem;
-            padding-bottom: 12px;
-            border-bottom: 1px solid #2f3540;
-            margin-bottom: 18px;
-        }
-        .screen-header .user {
-            background: #2f3540;
-            padding: 4px 14px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            color: #d0d7e0;
-        }
-        /* ----- рабочий стол ----- */
-        .desktop {
-            min-height: 460px;
-            display: flex;
-            flex-direction: column;
-            background: #1f2630;
-            border-radius: 14px;
-            padding: 20px 18px;
-            background-image: radial-gradient(circle at 20% 30%, #2d3542 0%, #1a1f28 100%);
-        }
-        .greeting {
             color: #e8edf5;
-            font-size: 1.8rem;
-            font-weight: 300;
-            margin-bottom: 6px;
-            letter-spacing: -0.3px;
-        }
-        .greeting span {
-            font-weight: 600;
-            color: #f5cba0;
-        }
-        .sub-greeting {
-            color: #8a9aa8;
             font-size: 0.9rem;
-            margin-bottom: 28px;
-            border-left: 3px solid #f5cba0;
-            padding-left: 14px;
+            font-weight: 500;
         }
-        .icons-grid {
+        .folder-header .close-btn {
+            background: none;
+            border: none;
+            color: #b0baca;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0 6px;
+        }
+        .folder-header .close-btn:hover {
+            color: #f5a090;
+        }
+        .folder-body {
+            padding: 14px 16px;
+            color: #c8d0dc;
+            min-height: 80px;
             display: flex;
             flex-wrap: wrap;
-            gap: 28px 40px;
-            margin-top: 6px;
+            gap: 10px;
         }
-        .icon-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 80px;
-            cursor: pointer;
-            transition: 0.15s;
-            text-decoration: none;
-            color: #d0d7e0;
-        }
-        .icon-item:hover {
-            transform: scale(0.96);
-            opacity: 0.8;
-        }
-        .icon-item .icon {
-            font-size: 2.6rem;
-            margin-bottom: 6px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-        }
-        .icon-item .label {
-            font-size: 0.7rem;
-            text-align: center;
-            background: rgba(255,255,255,0.04);
-            padding: 3px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.03);
-        }
-        .dock {
-            margin-top: 28px;
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            background: #2a303b;
-            padding: 10px 18px;
-            border-radius: 40px;
-            align-self: center;
-            border: 1px solid #3b4453;
-        }
-        .dock-item {
-            color: #aab;
-            font-size: 0.7rem;
-            padding: 2px 12px;
-            border-radius: 30px;
-        }
-        .dock-item.active {
-            background: #3d475a;
-            color: #f5e6d3;
-        }
-        .btn-back-desktop {
-            background: #323b48;
-            border: none;
-            color: #d0d7e0;
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: 18px;
-            transition: 0.1s;
-        }
-        .btn-back-desktop:hover {
-            background: #404b5c;
-        }
-        .page-content {
-            display: none;
-            padding: 18px 10px 10px;
-            color: #ddd;
-            background: #1a202a;
-            border-radius: 16px;
-            margin-top: 12px;
-        }
-        .page-content.visible {
-            display: block;
-        }
-        .page-content h2 {
-            color: #f5cba0;
-            font-weight: 300;
-            font-size: 1.6rem;
-            border-bottom: 1px solid #2f3845;
-            padding-bottom: 10px;
-            margin-bottom: 18px;
-        }
-        .page-content p {
-            line-height: 1.6;
-            color: #bcc9d6;
-        }
-        .page-content .photo-item {
-            background: #2b3442;
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 12px;
-            border-left: 4px solid #f5cba0;
-        }
-        .page-content .photo-item strong {
-            color: #f5dcc4;
-        }
-        .page-content .photo-item small {
-            color: #8a9aa8;
-            display: block;
-            margin-top: 4px;
-        }
-        /* ----- форма входа ----- */
-        .login-box {
-            background: #1f2630;
-            border-radius: 24px;
-            padding: 36px 28px;
-            max-width: 380px;
-            margin: 0 auto;
-            text-align: center;
-            border: 1px solid #3a4455;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-        }
-        .login-box h2 {
-            color: #f5cba0;
-            font-weight: 300;
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-        }
-        .login-box p {
-            color: #8a9aa8;
+        .folder-body .empty-msg {
+            color: #7a8a9e;
+            font-style: italic;
             font-size: 0.9rem;
-            margin-bottom: 24px;
-        }
-        .login-box input {
             width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 14px;
-            background: #2a323f;
-            border: 1px solid #3f4a5a;
-            border-radius: 40px;
-            color: #e8edf5;
-            font-size: 1rem;
-            outline: none;
-            transition: 0.2s;
+            text-align: center;
+            padding: 20px 0;
         }
-        .login-box input:focus {
-            border-color: #f5cba0;
-            background: #2f3848;
+        .folder-body .file-item {
+            background: #2b3445;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid #3d475c;
         }
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            background: #f5cba0;
-            border: none;
-            border-radius: 40px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #1a1e24;
-            cursor: pointer;
-            transition: 0.15s;
+        /* контекстное меню */
+        .context-menu {
+            position: fixed;
+            background: #1e2532;
+            border: 1px solid #3f4a5e;
+            border-radius: 8px;
+            padding: 6px 0;
+            min-width: 180px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 999;
+            display: none;
         }
-        .login-box button:hover {
-            background: #e8b889;
-        }
-        .login-error {
-            color: #e0846a;
+        .context-menu-item {
+            padding: 8px 18px;
+            color: #d0d7e0;
             font-size: 0.85rem;
-            margin-top: 10px;
+            cursor: pointer;
+            transition: 0.08s;
+        }
+        .context-menu-item:hover {
+            background: #2f3a4e;
+        }
+        .context-menu-item.danger:hover {
+            background: #6a2e2e;
+        }
+        /* всплывающее уведомление */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e2532;
+            color: #e8edf5;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 0.9rem;
+            border: 1px solid #3f4a5e;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             display: none;
+            z-index: 800;
+            animation: fadeIn 0.2s;
         }
-        .login-box .hint {
-            font-size: 0.7rem;
-            color: #5f6f82;
-            margin-top: 12px;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        /* скрытые элементы */
-        #desktopView {
-            display: none;
+        /* адаптив */
+        @media (max-width: 700px) {
+            .desktop-icon { width: 60px; }
+            .desktop-icon .icon-img { font-size: 2.2rem; }
+            .desktop-icon .icon-label { font-size: 0.55rem; }
+            .folder-window { width: 90%; left: 5%; top: 40px; }
         }
-        #pageContainer {
-            display: none;
-        }
-        #backToDesktop {
-            display: none;
-        }
-        .login-error.visible {
-            display: block;
-        }
-        @media (max-width: 650px) {
-            .greeting {
-                font-size: 1.4rem;
-            }
-            .icon-item {
-                width: 70px;
-            }
-            .icon-item .icon {
-                font-size: 2.2rem;
-            }
-            .dock {
-                gap: 6px;
-                flex-wrap: wrap;
-            }
-            .login-box {
-                padding: 24px 18px;
-            }
+        @media (max-width: 500px) {
+            .taskbar { flex-wrap: wrap; gap: 4px; justify-content: center; }
+            .taskbar-left { flex: 1 1 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <div class="laptop-screen" id="app">
-        <!-- верхняя панель -->
-        <div class="screen-header">
-            <span class="time">💻 Она</span>
-            <span class="user" id="userDisplay">🧑‍💻 Вход</span>
-        </div>
+<div class="monitor">
+    <div class="screen">
+        <!-- РАБОЧИЙ СТОЛ -->
+        <div class="desktop" id="desktopArea" style="position:relative;">
 
-        <!-- ----- ФОРМА ВХОДА ----- -->
-        <div id="loginView">
-            <div class="login-box">
-                <h2>🔐 Личный кабинет</h2>
-                <p>Войди, чтобы открыть нашу историю</p>
-                <input type="text" id="loginInput" placeholder="Логин" value="СашаАнанас" />
-                <input type="password" id="passwordInput" placeholder="Пароль" value="4557" />
-                <button id="loginBtn">Войти</button>
-                <div class="login-error" id="loginError">❌ Неверный логин или пароль</div>
-                <div class="hint">✨ твой личный архив</div>
+            <!-- Стартовые папки -->
+            <div class="desktop-icon" data-folder="history" style="left:24px; top:24px;">
+                <span class="icon-img">📖</span>
+                <span class="icon-label">Наша история</span>
             </div>
-        </div>
+            <div class="desktop-icon" data-folder="growth" style="left:112px; top:24px;">
+                <span class="icon-img">🌱</span>
+                <span class="icon-label">Наш рост</span>
+            </div>
+            <div class="desktop-icon" data-folder="moments" style="left:200px; top:24px;">
+                <span class="icon-img">💌</span>
+                <span class="icon-label">Искренние моменты</span>
+            </div>
+            <div class="desktop-icon" data-folder="letters" style="left:288px; top:24px;">
+                <span class="icon-img">✉️</span>
+                <span class="icon-label">Мои письма</span>
+            </div>
+            <div class="desktop-icon" data-folder="playlist" style="left:376px; top:24px;">
+                <span class="icon-img">🎵</span>
+                <span class="icon-label">Наш плейлист</span>
+            </div>
 
-        <!-- ----- РАБОЧИЙ СТОЛ (скрыт до входа) ----- -->
-        <div id="desktopView">
-            <div class="desktop">
-                <div class="greeting">Привет, <span id="userNameDisplay">Саша</span> 💛</div>
-                <div class="sub-greeting">Твой личный кабинет нашей истории. Нажми на папку, чтобы войти.</div>
+            <!-- КОРЗИНА (всегда внизу справа) -->
+            <div class="desktop-icon recycle" id="recycleBin" style="bottom:20px; right:20px;">
+                <span class="icon-img" id="recycleIcon">🗑️</span>
+                <span class="icon-label">Корзина</span>
+            </div>
 
-                <div class="icons-grid">
-                    <a class="icon-item" data-page="history">
-                        <span class="icon">📖</span>
-                        <span class="label">Наша история</span>
-                    </a>
-                    <a class="icon-item" data-page="growth">
-                        <span class="icon">🌱</span>
-                        <span class="label">Наш рост</span>
-                    </a>
-                    <a class="icon-item" data-page="moments">
-                        <span class="icon">💌</span>
-                        <span class="label">Искренние моменты</span>
-                    </a>
-                    <a class="icon-item" data-page="letters">
-                        <span class="icon">✉️</span>
-                        <span class="label">Мои письма</span>
-                    </a>
-                    <a class="icon-item" data-page="playlist">
-                        <span class="icon">🎵</span>
-                        <span class="label">Наш плейлист</span>
-                    </a>
+            <!-- ОКНО ПАПКИ (всплывает при двойном клике) -->
+            <div class="folder-window" id="folderWindow">
+                <div class="folder-header">
+                    <span id="folderTitle">Папка</span>
+                    <button class="close-btn" id="folderClose">✕</button>
                 </div>
-
-                <div class="dock">
-                    <span class="dock-item active">💻 Рабочий стол</span>
-                    <span class="dock-item">❤️ Ты</span>
+                <div class="folder-body" id="folderBody">
+                    <div class="empty-msg">📂 Папка пуста</div>
                 </div>
             </div>
         </div>
 
-        <!-- контейнер для страниц -->
-        <div id="pageContainer"></div>
-
-        <div style="text-align: center; margin-top: 14px;">
-            <button class="btn-back-desktop" id="backToDesktop">⬅ Вернуться на рабочий стол</button>
+        <!-- ПАНЕЛЬ ЗАДАЧ -->
+        <div class="taskbar">
+            <div class="taskbar-left">
+                <button class="start-btn" id="createFolderBtn">📁 + Создать папку</button>
+                <span style="color:#6a7a8e; font-size:0.7rem;">|</span>
+                <span style="color:#6a7a8e; font-size:0.7rem;" id="counterDisplay">5 папок</span>
+            </div>
+            <div class="taskbar-icons">
+                <span id="taskbarTime">00:00</span>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // ---------- ДАННЫЕ СТРАНИЦ ----------
-        const pages = {
-            history: {
-                title: "📖 Наша история",
-                content: `
-                    <div class="photo-item"><strong>День знакомства</strong><small>«Ты зашла и я понял…»</small></div>
-                    <div class="photo-item"><strong>Первое свидание</strong><small>Смех, волнение и чувство, что я знаю тебя вечность.</small></div>
-                    <div class="photo-item"><strong>Первый Новый год вместе</strong><small>Снег, фейерверк и обещание быть рядом.</small></div>
-                    <div class="photo-item"><strong>Наша свадьба</strong><small>Ты сказала «да», я перестал дышать.</small></div>
-                    <div class="photo-item"><strong>Первый переезд</strong><small>Мы строили дом из коробок и надежды.</small></div>
-                    <p style="margin-top:20px; color:#b0c7df;">Мы прошли через расстояния, ссоры, слёзы — и остались.</p>
-                `
-            },
-            growth: {
-                title: "🌱 Наш рост",
-                content: `
-                    <div class="photo-item"><strong>Тогда</strong><small>Мы боялись сказать правду, прятали обиды.</small></div>
-                    <div class="photo-item"><strong>Сейчас</strong><small>Мы учимся слышать, даже когда больно.</small></div>
-                    <div class="photo-item"><strong>Вместе</strong><small>Каждый день я выбираю тебя, а ты — меня.</small></div>
-                    <p style="margin-top:20px; color:#b0c7df;">Мы не идеальны. Мы растем. И я хочу расти только рядом с тобой.</p>
-                `
-            },
-            moments: {
-                title: "💌 Искренние моменты",
-                content: `
-                    <div class="photo-item"><strong>«Спасибо, что ты есть»</strong><small>Твои слова, которые я храню в сердце.</small></div>
-                    <div class="photo-item"><strong>«Я скучаю»</strong><small>Миллион раз в мессенджерах и один раз навсегда.</small></div>
-                    <div class="photo-item"><strong>«Я люблю тебя»</strong><small>Каждый раз по-новому.</small></div>
-                    <p style="color:#d0d7e0; margin-top:16px;">Эти моменты — наша настоящая жизнь.</p>
-                `
-            },
-            letters: {
-                title: "✉️ Мои письма тебе",
-                content: `
-                    <div class="photo-item"><strong>Первое письмо</strong><small>«Ты не ищешь меня, ты просто есть рядом…»</small></div>
-                    <div class="photo-item"><strong>Письмо после ссоры</strong><small>«Я не хочу быть правым, я хочу быть с тобой».</small></div>
-                    <div class="photo-item"><strong>Сегодня</strong><small>«Ты — мой дом, даже когда я теряю ключи».</small></div>
-                `
-            },
-            playlist: {
-                title: "🎵 Наш плейлист",
-                content: `
-                    <div class="photo-item"><strong>🎧 Первый трек</strong><small>Та песня, которая играла в первый раз.</small></div>
-                    <div class="photo-item"><strong>🎧 Песня разлуки</strong><small>Та, что мы пели в трубку ночью.</small></div>
-                    <div class="photo-item"><strong>🎧 Наш гимн</strong><small>Та, что мы включим на нашей годовщине.</small></div>
-                `
-            }
-        };
+<!-- КОНТЕКСТНОЕ МЕНЮ -->
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" data-action="rename">✏️ Переименовать</div>
+    <div class="context-menu-item danger" data-action="delete">🗑️ Удалить</div>
+</div>
 
-        // ---------- ЭЛЕМЕНТЫ ----------
-        const loginView = document.getElementById('loginView');
-        const desktopView = document.getElementById('desktopView');
-        const pageContainer = document.getElementById('pageContainer');
-        const backBtn = document.getElementById('backToDesktop');
+<!-- ТОСТ-УВЕДОМЛЕНИЕ -->
+<div class="toast" id="toast"></div>
 
-        const loginInput = document.getElementById('loginInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const loginError = document.getElementById('loginError');
+<script>
+    // =============================================
+    // 1. ХРАНИЛИЩЕ ПАПОК
+    // =============================================
+    let folders = {
+        history: { label: 'Наша история', icon: '📖' },
+        growth: { label: 'Наш рост', icon: '🌱' },
+        moments: { label: 'Искренние моменты', icon: '💌' },
+        letters: { label: 'Мои письма', icon: '✉️' },
+        playlist: { label: 'Наш плейлист', icon: '🎵' }
+    };
 
-        const userDisplay = document.getElementById('userDisplay');
-        const userNameDisplay = document.getElementById('userNameDisplay');
+    // содержимое папок (для демонстрации)
+    const folderContents = {
+        history: ['День знакомства', 'Первое свидание', 'Свадьба', 'Первый переезд'],
+        growth: ['Тогда', 'Сейчас', 'Вместе'],
+        moments: ['Спасибо, что ты есть', 'Я скучаю', 'Я люблю тебя'],
+        letters: ['Первое письмо', 'Письмо после ссоры', 'Сегодня'],
+        playlist: ['Первый трек', 'Песня разлуки', 'Наш гимн']
+    };
 
-        // ---------- ВХОД ----------
-        function handleLogin() {
-            const login = loginInput.value.trim();
-            const password = passwordInput.value.trim();
+    let folderCounter = 5; // для уникальных id новых папок
+    let selectedIcon = null;
+    let dragData = null;
+    let contextTarget = null;
 
-            if (login === 'СашаАнанас' && password === '4557') {
-                // успех
-                loginView.style.display = 'none';
-                desktopView.style.display = 'block';
-                pageContainer.style.display = 'block';
-                backBtn.style.display = 'inline-block';
-                userDisplay.textContent = '👤 СашаАнанас';
-                userNameDisplay.textContent = 'Саша';
-                loginError.classList.remove('visible');
-            } else {
-                loginError.classList.add('visible');
-                loginInput.value = '';
-                passwordInput.value = '';
-                loginInput.focus();
-            }
-        }
+    // =============================================
+    // 2. ЭЛЕМЕНТЫ DOM
+    // =============================================
+    const desktop = document.getElementById('desktopArea');
+    const recycleBin = document.getElementById('recycleBin');
+    const recycleIcon = document.getElementById('recycleIcon');
+    const folderWindow = document.getElementById('folderWindow');
+    const folderTitle = document.getElementById('folderTitle');
+    const folderBody = document.getElementById('folderBody');
+    const folderClose = document.getElementById('folderClose');
+    const contextMenu = document.getElementById('contextMenu');
+    const toast = document.getElementById('toast');
+    const counterDisplay = document.getElementById('counterDisplay');
+    const taskbarTime = document.getElementById('taskbarTime');
 
-        loginBtn.addEventListener('click', handleLogin);
+    // =============================================
+    // 3. ЧАСЫ
+    // =============================================
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2,'0');
+        const m = String(now.getMinutes()).padStart(2,'0');
+        taskbarTime.textContent = h + ':' + m;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
 
-        // вход по Enter
-        loginInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleLogin();
-        });
-        passwordInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') handleLogin();
-        });
+    // =============================================
+    // 4. ОТРИСОВКА ПАПОК НА РАБОЧЕМ СТОЛЕ
+    // =============================================
+    function renderIcons() {
+        // удаляем все иконки кроме корзины
+        document.querySelectorAll('.desktop-icon:not(.recycle)').forEach(el => el.remove());
 
-        // ---------- НАВИГАЦИЯ ----------
-        function openPage(pageId) {
-            if (!pageId || !pages[pageId]) return;
-            const data = pages[pageId];
-            pageContainer.innerHTML = `
-                <div class="page-content visible">
-                    <h2>${data.title}</h2>
-                    ${data.content}
-                </div>
+        let top = 24, left = 24;
+        const cols = 6;
+        const gapX = 88, gapY = 94;
+
+        for (const [id, data] of Object.entries(folders)) {
+            const div = document.createElement('div');
+            div.className = 'desktop-icon';
+            div.dataset.folder = id;
+            div.style.left = left + 'px';
+            div.style.top = top + 'px';
+            div.innerHTML = `
+                <span class="icon-img">${data.icon}</span>
+                <span class="icon-label">${data.label}</span>
             `;
-            pageContainer.dataset.currentPage = pageId;
-            desktopView.style.display = 'none';
-            backBtn.style.display = 'inline-block';
+            desktop.appendChild(div);
+
+            // обновляем позицию для следующей
+            left += gapX;
+            if ((left + 80) > desktop.clientWidth - 20) {
+                left = 24;
+                top += gapY;
+            }
         }
 
-        function closePage() {
-            desktopView.style.display = 'block';
-            pageContainer.innerHTML = '';
-            backBtn.style.display = 'none';
-            pageContainer.dataset.currentPage = '';
-        }
+        // обновляем счётчик
+        const count = Object.keys(folders).length;
+        counterDisplay.textContent = count + ' папок';
 
-        document.querySelectorAll('.icon-item').forEach(item => {
-            item.addEventListener('click', function(e) {
+        // прикрепляем события
+        attachIconEvents();
+    }
+
+    // =============================================
+    // 5. СОБЫТИЯ ДЛЯ ИКОНОК
+    // =============================================
+    function attachIconEvents() {
+        document.querySelectorAll('.desktop-icon:not(.recycle)').forEach(icon => {
+            // выделение
+            icon.addEventListener('click', function(e) {
+                if (e.detail === 1) {
+                    document.querySelectorAll('.desktop-icon.selected').forEach(el => el.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedIcon = this;
+                }
+            });
+
+            // двойной клик -> открыть папку
+            icon.addEventListener('dblclick', function() {
+                const folderId = this.dataset.folder;
+                if (folderId && folders[folderId]) {
+                    openFolder(folderId);
+                }
+            });
+
+            // ПКМ -> контекстное меню
+            icon.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
-                const page = this.getAttribute('data-page');
-                if (page) openPage(page);
+                contextTarget = this;
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = e.clientX + 'px';
+                contextMenu.style.top = e.clientY + 'px';
+            });
+
+            // Начало перетаскивания
+            icon.addEventListener('mousedown', function(e) {
+                if (e.button === 0 && !e.ctrlKey && !e.metaKey) {
+                    const rect = this.getBoundingClientRect();
+                    dragData = {
+                        icon: this,
+                        offsetX: e.clientX - rect.left,
+                        offsetY: e.clientY - rect.top,
+                        startX: parseInt(this.style.left) || 0,
+                        startY: parseInt(this.style.top) || 0
+                    };
+                }
             });
         });
+    }
 
-        backBtn.addEventListener('click', closePage);
+    // =============================================
+    // 6. ПЕРЕТАСКИВАНИЕ (DRAG & DROP)
+    // =============================================
+    document.addEventListener('mousemove', function(e) {
+        if (!dragData) return;
+        const parentRect = desktop.getBoundingClientRect();
+        let newX = e.clientX - parentRect.left - dragData.offsetX;
+        let newY = e.clientY - parentRect.top - dragData.offsetY;
+        // ограничиваем, чтобы не вылезало
+        const iconWidth = 72;
+        const iconHeight = 72;
+        newX = Math.max(0, Math.min(newX, desktop.clientWidth - iconWidth - 10));
+        newY = Math.max(0, Math.min(newY, desktop.clientHeight - iconHeight - 70));
+        dragData.icon.style.left = newX + 'px';
+        dragData.icon.style.top = newY + 'px';
+    });
 
-        // ---------- ПЕРВОНАЧАЛЬНОЕ СОСТОЯНИЕ ----------
-        // форма видна, рабочий стол скрыт
-        loginView.style.display = 'block';
-        desktopView.style.display = 'none';
-        pageContainer.style.display = 'none';
-        backBtn.style.display = 'none';
+    document.addEventListener('mouseup', function() {
+        dragData = null;
+    });
 
-        // если логин/пароль уже заполнены (для удобства)
-        loginInput.value = 'СашаАнанас';
-        passwordInput.value = '4557';
-    </script>
+    // =============================================
+    // 7. ОТКРЫТИЕ ПАПКИ
+    // =============================================
+    function openFolder(folderId) {
+        const data = folders[folderId];
+        if (!data) return;
+        folderTitle.textContent = data.icon + ' ' + data.label;
+        const content = folderContents[folderId] || ['(пусто)'];
+        folderBody.innerHTML = '';
+        if (content.length === 0 || (content.length === 1 && content[0] === '(пусто)')) {
+            folderBody.innerHTML = '<div class="empty-msg">📂 Папка пуста</div>';
+        } else {
+            content.forEach(item => {
+                const el = document.createElement('span');
+                el.className = 'file-item';
+                el.textContent = '📄 ' + item;
+                folderBody.appendChild(el);
+            });
+        }
+        folderWindow.classList.add('open');
+    }
+
+    folderClose.addEventListener('click', function() {
+        folderWindow.classList.remove('open');
+    });
+
+    // закрываем папку при клике вне её
+    document.addEventListener('click', function(e) {
+        if (folderWindow.classList.contains('open')) {
+            if (!folderWindow.contains(e.target)) {
+                folderWindow.classList.remove('open');
+            }
+        }
+    });
+
+    // =============================================
+    // 8. КОНТЕКСТНОЕ МЕНЮ
+    // =============================================
+    document.querySelectorAll('.context-menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const action = this.dataset.action;
+            if (!contextTarget) return;
+            const folderId = contextTarget.dataset.folder;
+            if (!folderId || !folders[folderId]) return;
+
+            if (action === 'rename') {
+                const newName = prompt('Новое имя папки:', folders[folderId].label);
+                if (newName && newName.trim().length > 0) {
+                    folders[folderId].label = newName.trim();
+                    renderIcons();
+                    showToast('✏️ Папка переименована');
+                }
+            } else if (action === 'delete') {
+                if (confirm('Удалить папку "' + folders[folderId].label + '"?')) {
+                    deleteFolder(folderId);
+                }
+            }
+            contextMenu.style.display = 'none';
+            contextTarget = null;
+        });
+    });
+
+    // скрываем контекстное меню при клике вне
+    document.addEventListener('click', function(e) {
+        if (!contextMenu.contains(e.target)) {
+            contextMenu.style.display = 'none';
+        }
+    });
+
+    // =============================================
+    // 9. УДАЛЕНИЕ ПАПКИ (в корзину)
+    // =============================================
+    function deleteFolder(folderId) {
+        if (!folders[folderId]) return;
+        delete folders[folderId];
+        delete folderContents[folderId];
+        renderIcons();
+        // меняем иконку корзины на полную
+        recycleIcon.textContent = '🗑️📄';
+        showToast('🗑️ Папка удалена в корзину');
+        // через 2 сек возвращаем пустую корзину (для красоты)
+        setTimeout(() => {
+            recycleIcon.textContent = '🗑️';
+        }, 2000);
+    }
+
+    // =============================================
+    // 10. СОЗДАНИЕ НОВОЙ ПАПКИ
+    // =============================================
+    document.getElementById('createFolderBtn').addEventListener('click', function() {
+        const name = prompt('Название новой папки:', 'Новая папка');
+        if (name && name.trim().length > 0) {
+            const id = 'folder_' + (++folderCounter);
+            folders[id] = { label: name.trim(), icon: '📁' };
+            folderContents[id] = ['Новый файл'];
+            renderIcons();
+            showToast('📁 Создана папка "' + name.trim() + '"');
+        }
+    });
+
+    // =============================================
+    // 11. ТОСТ-УВЕДОМЛЕНИЯ
+    // =============================================
+    let toastTimeout;
+
+    function showToast(text) {
+        toast.textContent = text;
+        toast.style.display = 'block';
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 1800);
+    }
+
+    // =============================================
+    // 12. ИНИЦИАЛИЗАЦИЯ
+    // =============================================
+    renderIcons();
+
+    // Корзина тоже может быть кликабельной (просто для красоты)
+    recycleBin.addEventListener('dblclick', function() {
+        showToast('🗑️ Корзина пуста (все файлы удалены)');
+    });
+
+    console.log('💻 Рабочий стол Windows 10 готов!');
+    console.log('📁 Папки можно перетаскивать, создавать и удалять.');
+</script>
 </body>
 </html>
